@@ -1,0 +1,77 @@
+﻿<h1>Список моделей</h1>
+<input type="button" value="Добавить" class="btn btn-default" (click)="add()" />
+<table *ngIf="tableMode; else create" class="table table-striped">
+    <thead>
+        <tr>
+            <td>Дата публикации</td>
+            <td>Автор</td>
+            <td>Цитата</td>
+            <td>Категория</td>
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+        <!--Строки для фильтрации-->
+        <tr>
+            <td><input [(ngModel)]="dateSearch" type="text"></td>
+            <td><input [(ngModel)]="authorSearch" type="text"></td>
+            <td><input [(ngModel)]="quteSearch" type="text"></td>
+            <td> </td>
+            <td></td>
+        </tr>
+        <!--Вывод цитат-->
+        <tr *ngFor="let p of quotes | search:'author':authorSearch | search:'text':quteSearch | search:'date':dateSearch">
+            <ng-template [ngIf]="quote?.id != p.id" [ngIfElse]="edit">
+                <td>{{p?.date | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+                <td>{{p?.author}}</td>
+                <td>{{p?.text}}</td>
+                <td>{{p?.category?.name}}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" (click)="editQuote(p)">Изменить</button>
+                    <button class="btn btn-sm btn-danger" (click)="delete(p)">Удалить</button>
+                </td>
+            </ng-template>
+        </tr>
+    </tbody>
+</table>
+
+<!--шаблон для редактирования-->
+<ng-template #edit>
+    
+    <td>
+        <input type="text" [(ngModel)]="quote.author" class="form-control" />
+    </td>
+    <td>
+        <input type="text" [(ngModel)]="quote.text" class="form-control" />
+    </td>
+    <td>
+        <input type="text" [(ngModel)]="quote.category.name" class="form-control" />
+    </td>
+    <td>
+        <input type="button" value="Сохранить" (click)="save()" class="btn btn-sm btn-success" />
+        <input type="button" value="Отмена" (click)="cancel()" class="btn btn-sm btn-warning" />
+    </td>
+</ng-template>
+
+<!--шаблон для добавления-->
+<ng-template #create>
+    <div class="form-group">
+        <label>Автор (его может и не быть)</label>
+        <input required type="text" [(ngModel)]="quote.author" class="form-control"/>
+        
+    </div>
+    <div class="form-group">
+        <label>Цитата</label>
+        <input type="text" [(ngModel)]="quote.text" class="form-control" #textQuote="ngModel" required/>
+        <div [hidden]="textQuote.valid || textQuote.untouched" class="alert alert-danger">Поле обязательно к заполнению</div>
+    </div>
+    <div class="form-group">
+        <label>Категория</label>
+        <input type="text" [(ngModel)]="quote.category.name" #category="ngModel" class="form-control" required />
+        <div [hidden]="category.valid || category.untouched" class="alert alert-danger">Поле обязательно к заполнению</div>
+    </div>
+        <div>
+            <input [disabled]="category.invalid || textQuote.invalid" type="button" value="Сохранить" (click)="save()" class="btn btn-success" />
+            <input type="button" value="Отмена" (click)="cancel()" class="btn btn-warning" />
+        </div>
+</ng-template>
